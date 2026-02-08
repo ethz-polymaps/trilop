@@ -11,28 +11,50 @@ import (
 	"github.com/ethz-polymaps/polaris"
 )
 
-type (
-	Measurements []Measurement
-	Measurement  struct {
-		Lat      float64
-		Lon      float64
-		Distance float64
-		Weight   float64
-	}
+// Measurements is a slice of Measurement values.
+type Measurements []Measurement
 
-	DistanceFunc    func(a, b polaris.Position) float64
-	TrilateratorOpt func(*TrilateratorConfig)
-	Trilaterator    struct {
-		config *TrilateratorConfig
-	}
-	TrilateratorConfig struct {
-		DistanceFunc    DistanceFunc
-		MinMeasurements int
-	}
-)
+// Measurement represents a distance observation from a known reference point.
+// It contains the reference point's coordinates, the measured distance to the
+// unknown target position, and a weight indicating the measurement's reliability.
+type Measurement struct {
+	// Lat is the latitude of the reference point in decimal degrees.
+	Lat float64
+	// Lon is the longitude of the reference point in decimal degrees.
+	Lon float64
+	// Distance is the measured distance from the reference point to the target in meters.
+	Distance float64
+	// Weight indicates the measurement's reliability (higher = more trusted).
+	// Must be positive. Use lower weights for noisier or less reliable measurements.
+	Weight float64
+}
 
+// DistanceFunc is a function that calculates the distance between two positions.
+// The distance package provides [distance.HaversineDistance] and [distance.VincentyDistance].
+type DistanceFunc func(a, b polaris.Position) float64
+
+// TrilateratorOpt is a functional option for configuring a Trilaterator.
+type TrilateratorOpt func(*TrilateratorConfig)
+
+// Trilaterator estimates geographic positions using trilateration.
+type Trilaterator struct {
+	config *TrilateratorConfig
+}
+
+// TrilateratorConfig holds the configuration for a Trilaterator.
+type TrilateratorConfig struct {
+	// DistanceFunc is used to calculate distances during optimization.
+	// Defaults to distance.HaversineDistance.
+	DistanceFunc DistanceFunc
+	// MinMeasurements is the maximum number of measurements allowed.
+	// Defaults to 3.
+	MinMeasurements int
+}
+
+// NewTrilaterator creates a new Trilaterator with the given options.
+// By default, it uses [distance.HaversineDistance] for distance calculations
+// and allows up to 3 measurements.
 func NewTrilaterator(opts ...TrilateratorOpt) *Trilaterator {
-
 	config := &TrilateratorConfig{
 		DistanceFunc:    distance.HaversineDistance,
 		MinMeasurements: 3,
@@ -47,7 +69,16 @@ func NewTrilaterator(opts ...TrilateratorOpt) *Trilaterator {
 	}
 }
 
-// Trilaterate calculates the position and accuracy of a device based on trilateration
+// Trilaterate estimates a position from the given distance measurements using
+// weighted least-squares optimization. It returns the estimated position,
+// an accuracy metric (weighted RMS error in meters), and any error encountered.
+//
+// The function requires 1 to MinMeasurements measurements. With a single measurement,
+// it returns the measurement's position with its distance as the accuracy.
+// With multiple measurements, it uses the Nelder-Mead algorithm to find the
+// position that minimizes the weighted sum of squared distance errors.
+//
+// All measurements must have positive weights and non-negative distances.
 func (t *Trilaterator) Trilaterate(measurements []Measurement) (loc polaris.Position, accuracy float64, err error) {
 
 	if len(measurements) < 1 || len(measurements) > t.config.MinMeasurements {

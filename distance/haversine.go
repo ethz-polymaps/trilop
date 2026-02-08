@@ -6,7 +6,13 @@ import (
 	"github.com/ethz-polymaps/polaris"
 )
 
-// HaversineDistance calculates the distance between two points on Earth
+// HaversineDistance calculates the great-circle distance between two points
+// on Earth using the Haversine formula. This assumes a spherical Earth with
+// a radius of 6,371 km. Returns the distance in meters.
+//
+// The Haversine formula is computationally efficient and provides good accuracy
+// for most applications. For higher precision over long distances, consider
+// using [VincentyDistance] instead.
 func HaversineDistance(a, b polaris.Position) float64 {
 	const R = 6371000 // Earth radius in meters
 
