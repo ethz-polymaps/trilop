@@ -3,7 +3,7 @@ module github.com/ethz-polymaps/trilop
 go 1.25.6
 
 require (
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	gonum.org/v1/gonum v0.17.0
 )
 
