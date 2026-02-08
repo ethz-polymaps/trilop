@@ -1,4 +1,4 @@
-module github.com/ethz-polymaps/trilop
+module github.com/ethz-polymaps/polaris
 
 go 1.25.6
 

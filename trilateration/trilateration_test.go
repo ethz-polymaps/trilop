@@ -3,7 +3,7 @@ package trilateration
 import (
 	"testing"
 
-	"github.com/ethz-polymaps/trilop/distance"
+	"github.com/ethz-polymaps/polaris/distance"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

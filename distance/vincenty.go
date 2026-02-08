@@ -3,7 +3,7 @@ package distance
 import (
 	"math"
 
-	"github.com/ethz-polymaps/trilop"
+	"github.com/ethz-polymaps/polaris"
 )
 
 // WGS-84 ellipsoid parameters
@@ -16,7 +16,7 @@ const (
 // VincentyDistance calculates the distance between two points using Vincenty's formula.
 // This is more accurate than Haversine as it accounts for Earth's ellipsoidal shape (WGS-84).
 // Returns distance in meters.
-func VincentyDistance(a, b trilop.Position) float64 {
+func VincentyDistance(a, b polaris.Position) float64 {
 	if a.Latitude == b.Latitude && a.Longitude == b.Longitude {
 		return 0
 	}

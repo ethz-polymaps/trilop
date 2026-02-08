@@ -1,8 +1,8 @@
 package trilateration
 
-import "github.com/ethz-polymaps/trilop"
+import "github.com/ethz-polymaps/polaris"
 
-func WithDistanceFunc(vincentyDistance func(a trilop.Position, b trilop.Position) float64) TrilateratorOpt {
+func WithDistanceFunc(vincentyDistance func(a polaris.Position, b polaris.Position) float64) TrilateratorOpt {
 	return func(t *TrilateratorConfig) {
 		t.DistanceFunc = vincentyDistance
 	}
