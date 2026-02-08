@@ -5,13 +5,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ethz-polymaps/trilop"
+	"github.com/ethz-polymaps/polaris"
 )
 
 func TestVincentyDistance(t *testing.T) {
 	type args struct {
-		a trilop.Position
-		b trilop.Position
+		a polaris.Position
+		b polaris.Position
 	}
 	tests := []struct {
 		name  string
@@ -22,8 +22,8 @@ func TestVincentyDistance(t *testing.T) {
 		{
 			name: "same point",
 			args: args{
-				a: trilop.NewPosition(47.413310, 8.536444),
-				b: trilop.NewPosition(47.413310, 8.536444),
+				a: polaris.NewPosition(47.413310, 8.536444),
+				b: polaris.NewPosition(47.413310, 8.536444),
 			},
 			want:  0,
 			delta: 0,
@@ -31,8 +31,8 @@ func TestVincentyDistance(t *testing.T) {
 		{
 			name: "short distance ~5.7m",
 			args: args{
-				a: trilop.NewPosition(47.413310, 8.536444),
-				b: trilop.NewPosition(47.413309, 8.536520),
+				a: polaris.NewPosition(47.413310, 8.536444),
+				b: polaris.NewPosition(47.413309, 8.536520),
 			},
 			want:  5.7366,
 			delta: 0.001,
@@ -40,8 +40,8 @@ func TestVincentyDistance(t *testing.T) {
 		{
 			name: "medium distance ~1.7km",
 			args: args{
-				a: trilop.NewPosition(47.463960, 8.322321),
-				b: trilop.NewPosition(47.474113, 8.305055),
+				a: polaris.NewPosition(47.463960, 8.322321),
+				b: polaris.NewPosition(47.474113, 8.305055),
 			},
 			want:  1722.93,
 			delta: 0.1,
@@ -49,8 +49,8 @@ func TestVincentyDistance(t *testing.T) {
 		{
 			name: "long distance ~383km",
 			args: args{
-				b: trilop.NewPosition(39.099912, -94.581213),
-				a: trilop.NewPosition(38.627089, -90.200203),
+				b: polaris.NewPosition(39.099912, -94.581213),
+				a: polaris.NewPosition(38.627089, -90.200203),
 			},
 			want:  383805.76,
 			delta: 1,

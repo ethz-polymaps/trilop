@@ -1,4 +1,4 @@
-package trilop
+package polaris
 
 import "fmt"
 

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/ethz-polymaps/trilop/distance"
+	"github.com/ethz-polymaps/polaris/distance"
 	"gonum.org/v1/gonum/optimize"
 
-	"github.com/ethz-polymaps/trilop"
+	"github.com/ethz-polymaps/polaris"
 )
 
 type (
@@ -20,7 +20,7 @@ type (
 		Weight   float64
 	}
 
-	DistanceFunc    func(a, b trilop.Position) float64
+	DistanceFunc    func(a, b polaris.Position) float64
 	TrilateratorOpt func(*TrilateratorConfig)
 	Trilaterator    struct {
 		config *TrilateratorConfig
@@ -48,25 +48,25 @@ func NewTrilaterator(opts ...TrilateratorOpt) *Trilaterator {
 }
 
 // Trilaterate calculates the position and accuracy of a device based on trilateration
-func (t *Trilaterator) Trilaterate(measurements []Measurement) (loc trilop.Position, accuracy float64, err error) {
+func (t *Trilaterator) Trilaterate(measurements []Measurement) (loc polaris.Position, accuracy float64, err error) {
 
 	if len(measurements) < 1 || len(measurements) > t.config.MinMeasurements {
-		return trilop.EmptyPosition, 0, fmt.Errorf("must provide 1-%d measurements", t.config.MinMeasurements)
+		return polaris.EmptyPosition, 0, fmt.Errorf("must provide 1-%d measurements", t.config.MinMeasurements)
 	}
 
 	if len(measurements) == 1 {
-		return trilop.NewPosition(measurements[0].Lat, measurements[0].Lon), measurements[0].Distance, nil
+		return polaris.NewPosition(measurements[0].Lat, measurements[0].Lon), measurements[0].Distance, nil
 	}
 
 	for _, m := range measurements {
 		if m.Weight <= 0 {
-			return trilop.EmptyPosition, 0, errors.New("weights must be positive")
+			return polaris.EmptyPosition, 0, errors.New("weights must be positive")
 		}
 	}
 
 	for _, m := range measurements {
 		if m.Distance < 0 {
-			return trilop.EmptyPosition, 0, errors.New("distances must be positive")
+			return polaris.EmptyPosition, 0, errors.New("distances must be positive")
 		}
 	}
 
@@ -87,7 +87,7 @@ func (t *Trilaterator) Trilaterate(measurements []Measurement) (loc trilop.Posit
 			var sum float64
 			for _, measurement := range measurements {
 				// HaversineDistance distance between current point and measurement
-				d := t.config.DistanceFunc(trilop.NewPosition(lat, lon), trilop.NewPosition(measurement.Lat, measurement.Lon))
+				d := t.config.DistanceFunc(polaris.NewPosition(lat, lon), polaris.NewPosition(measurement.Lat, measurement.Lon))
 				// Weighted square error
 				diff := d - measurement.Distance
 				sum += measurement.Weight * diff * diff
@@ -99,10 +99,10 @@ func (t *Trilaterator) Trilaterate(measurements []Measurement) (loc trilop.Posit
 	// Run optimization
 	result, err := optimize.Minimize(problem, []float64{initLat, initLong}, nil, &optimize.NelderMead{})
 	if err != nil {
-		return trilop.EmptyPosition, 0, err
+		return polaris.EmptyPosition, 0, err
 	}
 
 	weightedSquareError := result.F
 	weightedError := math.Sqrt(weightedSquareError) / float64(len(measurements))
-	return trilop.NewPosition(result.X[0], result.X[1]), weightedError, nil
+	return polaris.NewPosition(result.X[0], result.X[1]), weightedError, nil
 }
